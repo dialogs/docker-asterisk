@@ -9,7 +9,10 @@ RUN yum -y update && yum -y install epel-release
 RUN yum -y install wget \
                    net-tools \
                    ns \
-                   vim
+                   vim \
+                   mc \
+                   nc \
+                   tcpdump
 
 # asterisk dependencies
 RUN yum -y install autoconf \
@@ -30,14 +33,14 @@ RUN yum -y install autoconf \
 
 WORKDIR /usr/src
 
-RUN wget http://downloads.asterisk.org/pub/telephony/asterisk/releases/asterisk-14.6.1.tar.gz && \
-    tar -zxvf asterisk-14.6.1.tar.gz
+RUN wget http://downloads.asterisk.org/pub/telephony/asterisk/releases/asterisk-15.4.0.tar.gz && \
+    tar -zxvf asterisk-15.4.0.tar.gz
 
-RUN cd asterisk-14.6.1/contrib/scripts/ && \
+RUN cd asterisk-15.4.0/contrib/scripts/ && \
     ./install_prereq install && \
     ./install_prereq install-unpackaged
 
-RUN cd asterisk-14.6.1 && \
+RUN cd asterisk-15.4.0 && \
     ./configure && \
     make menuselect.makeopts && \
     menuselect/menuselect --disable BUILD_NATIVE \
@@ -56,19 +59,18 @@ RUN cd asterisk-14.6.1 && \
 RUN yum clean all
 
 EXPOSE \
-    5060/udp \
-    5061/tcp \
-    10000-10010/tcp \
-    10000-10010/udp
-
-# example scripts
-COPY sip.conf /etc/asterisk/sip.conf
+    8089/tcp \
+    10000-10010/udp 
+    
+# config
+COPY pjsip.conf /etc/asterisk/pjsip.conf
 COPY http.conf /etc/asterisk/http.conf
 COPY rtp.conf /etc/asterisk/rtp.conf
 COPY modules.conf /etc/asterisk/modules.conf
 COPY extensions.conf /etc/asterisk/extensions.conf
+COPY keys /etc/asterisk/keys
 
-# change external ip address
+# entrypoint
 COPY entrypoint.sh /
 RUN chmod +x /entrypoint.sh
 ENTRYPOINT ["/entrypoint.sh"]

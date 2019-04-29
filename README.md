@@ -2,21 +2,38 @@
 
 Use `docker build -t dialog/asterisk .` to create the image,
 
-Run the container with following:
-```
-docker run -it \
-    -e EXTERN_IP=$EXTERN_IP \
-    -p 5060:5060/udp \
-    -p 5061:5061/tcp \
-    -p 10000-10010:10000-10010/udp \
-    -p 8088:8088/tcp \
-    dialog/asterisk
-```
-where `$EXTERN_IP` is the external ip of the machine.
+Run the container with `./run`
 
-You will also need to create a certificate from inside the docker:
+To create your own certificates
 ```
 mkdir /etc/asterisk/keys
-cd asterisk-14.6.1/contrib/scripts/
+cd asterisk-15.4.0/contrib/scripts/
 ./ast_tls_cert -C sip.dialog.im -O "Dialog SIP" -d /etc/asterisk/keys
 ```
+
+Try with https://www.doubango.org/sipml5/call.htm using
+
+### Registration
+
+| Field | Value |
+| --- | --- |
+| Display Name | 199 |
+| Private Identity | 199 |
+| Public Identity | sip:199@DOCKER_IP_ADDRESS |
+| Password | 199 |
+| Realm | asterisk |
+
+### Expert settings
+
+| Field | Value |
+| --- | --- |
+| Disable Video |true |
+| WebSocket Server URL | wss://DOCKER_IP_ADDRESS:8089/ws |
+| ICE Servers | [{url: 'stun://stun.l.google.com:19302'}] |
+
+### Call control
+
+| Extension | result |
+| --- | --- |
+| 1000 | for welcome message |
+| 1001 | for echo |
